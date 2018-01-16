@@ -15,14 +15,23 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
+    args = message.content.split(' | ')
     if message.author.id == client.user.id:
         # General Commands
-        if message.content.startswith('>help'):
+        if args[0] == '>help':
             await client.send_message(message.channel, '**Commands List:**\n`>help` - sends this message. Lists all commands.\n`>purge [x]` - deletes x messages from the channel.')
         # Moderation Commands
-        if message.content.startswith('>purge'):
+        if args[0] == '>purge':
             if client.user.permissions_in(message.channel).manage_messages and client.user.permissions_in(message.channel).read_message_history:
-                async for message in client.logs_from(message.channel, limit=int(message.content[7:])+1):
+                async for message in client.logs_from(message.channel, limit=int(args[1])+1):
                     await client.delete_message(message)
+        if args[0] == '>kick':
+            if client.user.permissions_in(message.channel).kick_users:
+                await client.kick(message.mentions[0])
+                print("Kicked user "+message.mentions[0]+" from server "+message.server)
+        if args[0] == '>ban':
+            if client.user.permissions_in(message.channel).ban_users:
+                await client.ban(message.mentions[0])
+                print("Banned user "+message.mentions[0]+" from server "+message.server)
         
 client.run(token, bot=False)
